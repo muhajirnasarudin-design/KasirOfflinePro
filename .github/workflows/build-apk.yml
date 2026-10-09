@@ -1,4 +1,4 @@
-name: Buat APK KasirOfflinePro
+name: Build KasirOfflinePro APK
 
 on:
 workflow_dispatch:
@@ -65,4 +65,3 @@ steps:
       path: bin/*.apk
       if-no-files-found: error
       retention-days: 14
-      
