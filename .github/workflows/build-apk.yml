@@ -4,13 +4,9 @@ name: Build KasirOfflinePro APK
 on:
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
   build:
     runs-on: ubuntu-22.04
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,14 +22,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install system dependencies
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            git zip unzip autoconf automake libtool \
-            pkg-config zlib1g-dev libncurses-dev \
-            libffi-dev libssl-dev libltdl-dev cmake \
-            build-essential
+          sudo apt-get install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev libncurses-dev libffi-dev libssl-dev libltdl-dev cmake build-essential
 
       - name: Install Buildozer
         run: |
@@ -49,5 +41,3 @@ jobs:
           name: KasirOfflinePro-debug-apk
           path: bin/*.apk
           if-no-files-found: error
-          retention-days: 14
-          
