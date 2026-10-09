@@ -14,44 +14,42 @@ steps:
   - name: Checkout repository
     uses: actions/checkout@v4
 
-  - name: Setup Java
+  - name: Set up Java
     uses: actions/setup-java@v4
     with:
       distribution: temurin
       java-version: '17'
 
-  - name: Setup Python
+  - name: Set up Python
     uses: actions/setup-python@v5
     with:
       python-version: '3.11'
 
-  - name: Install system dependencies
+  - name: Install dependencies
     run: |
       sudo apt-get update
       sudo apt-get install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev libncurses-dev libffi-dev libssl-dev libltdl-dev cmake build-essential
 
-  - name: Setup Android SDK
+  - name: Set up Android SDK
     uses: android-actions/setup-android@v4
 
   - name: Install Android SDK packages
     run: |
-      sdkmanager --install "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.2.9519653"
-      yes | sdkmanager --licenses
+      sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.2.9519653"
+      yes | sdkmanager --licenses || true
 
   - name: Install Buildozer
     run: |
       python -m pip install --upgrade pip setuptools wheel
       python -m pip install buildozer cython==0.29.36
 
-  - name: Configure Android environment
-    run: |
-      echo "ANDROIDSDK=$ANDROID_HOME" >> "$GITHUB_ENV"
-      echo "ANDROIDNDK=$ANDROID_HOME/ndk/25.2.9519653" >> "$GITHUB_ENV"
-      echo "ANDROIDAPI=33" >> "$GITHUB_ENV"
-      echo "ANDROIDMINAPI=23" >> "$GITHUB_ENV"
-
   - name: Build APK
-    run: buildozer -v android debug
+    run: |
+      export ANDROIDSDK="$ANDROID_HOME"
+      export ANDROIDNDK="$ANDROID_HOME/ndk/25.2.9519653"
+      export ANDROIDAPI=33
+      export ANDROIDMINAPI=23
+      buildozer -v android debug
 
   - name: Upload APK
     uses: actions/upload-artifact@v4
