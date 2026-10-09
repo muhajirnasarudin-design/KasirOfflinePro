@@ -28,11 +28,7 @@ steps:
   - name: Install system dependencies
     run: |
       sudo apt-get update
-      sudo apt-get install -y \
-        git zip unzip autoconf automake libtool \
-        pkg-config zlib1g-dev libncurses-dev \
-        libffi-dev libssl-dev libltdl-dev cmake \
-        build-essential
+      sudo apt-get install -y git zip unzip autoconf automake libtool pkg-config zlib1g-dev libncurses-dev libffi-dev libssl-dev libltdl-dev cmake build-essential
 
   - name: Setup Android SDK
     uses: android-actions/setup-android@v4
@@ -55,8 +51,7 @@ steps:
       echo "ANDROIDMINAPI=23" >> "$GITHUB_ENV"
 
   - name: Build APK
-    run: |
-      buildozer -v android debug
+    run: buildozer -v android debug
 
   - name: Upload APK
     uses: actions/upload-artifact@v4
