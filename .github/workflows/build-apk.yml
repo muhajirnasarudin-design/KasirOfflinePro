@@ -25,7 +25,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -39,18 +42,11 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install buildozer cython==0.29.36
 
-      - name: Accept Android SDK licenses
-        run: |
-          mkdir -p "$HOME/.buildozer/android/platform/android-sdk/licenses"
-          printf '%s\n' \
-            '8933bad161af4178b1185d1a37fbf41ea5269c55' \
-            > "$HOME/.buildozer/android/platform/android-sdk/licenses/android-sdk-license"
-          printf '%s\n' \
-            '84831b9409646a918e30573bab4c9c91346d8abd' \
-            > "$HOME/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license"
-
       - name: Build APK
         run: |
+          mkdir -p "$HOME/.buildozer/android/platform/android-sdk/tools/bin"
+          ln -sf "$(command -v sdkmanager)" \
+            "$HOME/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager"
           yes | buildozer -v android debug
 
       - name: Upload APK
