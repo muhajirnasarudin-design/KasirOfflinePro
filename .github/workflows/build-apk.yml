@@ -1,11 +1,13 @@
+
 name: Test Workflow
 
 on:
-workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
-test:
-runs-on: ubuntu-latest
-steps:
-- name: Show success message
-run: echo "Workflow YAML is valid"
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show success message
+        run: echo "Workflow YAML is valid"
+        
