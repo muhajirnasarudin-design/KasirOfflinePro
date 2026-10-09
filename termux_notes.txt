@@ -1,0 +1,12 @@
+CATATAN TERMUX
+1. Ekstrak ZIP ke folder proyek.
+2. Untuk sekadar menguji kode Python/Kivy di Termux, Kivy perlu dukungan GUI yang sesuai; ini tidak selalu mudah di Android.
+3. Buildozer lebih disarankan dijalankan di Linux desktop/VM atau CI Linux.
+4. Di Linux:
+   sudo apt update
+   sudo apt install -y python3-pip python3-venv git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses-dev cmake libffi-dev libssl-dev
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install --upgrade pip buildozer cython
+   buildozer android debug
+5. File APK hasil build ada di folder bin/.
