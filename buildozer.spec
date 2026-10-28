@@ -5,7 +5,7 @@ package.domain = id.offlinekasir
 source.dir = .
 source.include_exts = py,kv,png,jpg,atlas,txt,md
 version = 1.0.0
-requirements = python3,kivy,plyer
+requirements = python3==3.11,kivy,plyer
 orientation = portrait
 fullscreen = 0
 android.accept_sdk_license = True
