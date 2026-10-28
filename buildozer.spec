@@ -1,4 +1,5 @@
-[app]
+cd ~/KasirOfflinePro
+nano buildozer.spec[app]
 title = Kasir Offline Pro
 package.name = kasirofflinepro
 package.domain = id.offlinekasir
@@ -8,6 +9,7 @@ version = 1.0.0
 requirements = python3,kivy,plyer
 orientation = portrait
 fullscreen = 0
+android.accept_sdk_license = True
 android.permissions = READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE
 android.api = 33
 android.minapi = 23
