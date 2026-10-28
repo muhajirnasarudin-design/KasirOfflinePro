@@ -42,10 +42,22 @@ jobs:
             Cython==0.29.36
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      - name: Build Android APK
-        run: buildozer android debug
+      - name: Build Android APK with detailed log
+        run: |
+          set -o pipefail
+          buildozer -v android debug 2>&1 | tee buildozer.log
+
+      - name: Upload build log for diagnosis
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: KasirOfflinePro-Build-Log
+          path: buildozer.log
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: KasirOfflinePro-APK
