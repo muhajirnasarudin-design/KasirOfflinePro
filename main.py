@@ -173,11 +173,11 @@ class Database:
 class KasirApp(App):
     title = APP_NAME
     def build(self):
-        Window.clearcolor = (0.95, 0.96, 0.98, 1)
+        Window.clearcolor = (0.94, 0.96, 0.99, 1)
         self.cart = {}
         self.current_edit_id = None
         self.last_receipt = ""
-        self.root_box = BoxLayout(orientation="vertical", padding=dp(10), spacing=dp(8))
+        self.root_box = BoxLayout(orientation="vertical", padding=dp(12), spacing=dp(10))
         data_dir = self.user_data_dir
         os.makedirs(data_dir, exist_ok=True)
         self.db_path = os.path.join(data_dir, "kasir_offline.db")
@@ -186,14 +186,22 @@ class KasirApp(App):
         return self.root_box
 
     def btn(self, text, fn, height=44):
-        b = Button(text=text, size_hint_y=None, height=dp(height), background_normal="")
-        b.background_color = (0.10, 0.30, 0.55, 1)
-        b.color = (1,1,1,1)
+        b = Button(
+            text=text,
+            size_hint_y=None,
+            height=dp(height),
+            background_normal="",
+            background_down=""
+        )
+        b.background_color = (0.25, 0.27, 0.85, 1)
+        b.color = (1, 1, 1, 1)
+        b.font_size = sp(14)
+        b.bold = True
         b.bind(on_release=lambda *_: fn())
         return b
 
     def label(self, text, size=16, height=None, bold=False):
-        return Label(text=text, font_size=sp(size), bold=bold, color=(0.12,0.15,0.20,1),
+        return Label(text=text, font_size=sp(size), bold=bold, color=(0.10, 0.13, 0.23, 1),
                      size_hint_y=None, height=dp(height or 30), halign="left", valign="middle")
 
     def page(self, title):
@@ -214,18 +222,79 @@ class KasirApp(App):
         self.root_box.add_widget(nav)
 
     def show_home(self):
-        body = self.page("KASIR OFFLINE PRO")
+        body = self.page("DASHBOARD KASIR")
+
         s, exp_today, all_s, capital, expenses = self.db.report()
-        body.add_widget(self.label("Hari ini", 18, 34, True))
-        body.add_widget(self.label(f"Omzet: {rupiah(s['omzet'])}"))
-        body.add_widget(self.label(f"Transaksi: {s['n']}"))
-        body.add_widget(self.label(f"Laba kotor: {rupiah(s['laba'])}"))
-        body.add_widget(self.label(f"Pengeluaran hari ini: {rupiah(exp_today)}"))
-        body.add_widget(self.label("Semua waktu", 18, 34, True))
-        body.add_widget(self.label(f"Total omzet: {rupiah(all_s['omzet'])}"))
-        body.add_widget(self.label(f"Modal awal: {rupiah(capital)}"))
-        body.add_widget(self.label(f"Total pengeluaran: {rupiah(expenses)}"))
-        body.add_widget(self.label("Data tersimpan di perangkat ini.", 14, 32))
+
+        # Sambutan
+        body.add_widget(self.label(
+            "Selamat datang di Kasir Offline Pro",
+            17, 38, True
+        ))
+        body.add_widget(self.label(
+            datetime.now().strftime("Tanggal: %d-%m-%Y"),
+            13, 26
+        ))
+
+        # Kartu ringkasan
+        stats = GridLayout(
+            cols=2,
+            spacing=dp(8),
+            size_hint_y=None,
+            height=dp(176)
+        )
+
+        cards = [
+            ("OMZET HARI INI", rupiah(s["omzet"])),
+            ("TRANSAKSI", str(s["n"])),
+            ("LABA KOTOR", rupiah(s["laba"])),
+            ("PENGELUARAN", rupiah(exp_today)),
+        ]
+
+        for heading, value in cards:
+            card = BoxLayout(
+                orientation="vertical",
+                padding=dp(10),
+                spacing=dp(5)
+            )
+            card.add_widget(self.label(heading, 12, 28, True))
+            card.add_widget(self.label(value, 15, 42, True))
+            stats.add_widget(card)
+
+        body.add_widget(stats)
+
+        # Akses cepat
+        body.add_widget(self.label("AKSES CEPAT", 16, 32, True))
+        body.add_widget(self.btn(
+            "BUKA KASIR  >",
+            self.show_cashier,
+            52
+        ))
+        body.add_widget(self.btn(
+            "+ Tambah / Kelola Barang",
+            self.show_products,
+            44
+        ))
+
+        # Ringkasan keuangan
+        body.add_widget(self.label("RINGKASAN KEUANGAN", 16, 32, True))
+        body.add_widget(self.label(
+            f"Total omzet: {rupiah(all_s['omzet'])}",
+            14, 28
+        ))
+        body.add_widget(self.label(
+            f"Modal awal: {rupiah(capital)}",
+            14, 28
+        ))
+        body.add_widget(self.label(
+            f"Total pengeluaran: {rupiah(expenses)}",
+            14, 28
+        ))
+        body.add_widget(self.label(
+            "Data tersimpan secara offline di perangkat.",
+            12, 28
+        ))
+
         self.add_nav(body)
 
     def show_products(self):
@@ -379,9 +448,30 @@ class KasirApp(App):
             content = BoxLayout(orientation="vertical", padding=dp(10), spacing=dp(8))
             text = TextInput(text=self.last_receipt, readonly=True)
             content.add_widget(text)
+            content.add_widget(self.btn("Simpan ke Download", self.export_receipt, 40))
             content.add_widget(self.btn("Tutup", lambda: pop.dismiss(), 40))
             pop = Popup(title="Struk terakhir", content=content, size_hint=(.92,.85))
             pop.open()
+
+
+    def export_receipt(self):
+        if not self.last_receipt:
+            self.make_receipt()
+        if not self.last_receipt:
+            return
+        try:
+            if platform == "android":
+                folder = "/storage/emulated/0/Download"
+            else:
+                folder = str(Path.home() / "Downloads")
+            os.makedirs(folder, exist_ok=True)
+            filename = "struk_" + datetime.now().strftime("%Y%m%d_%H%M%S") + ".txt"
+            dest = os.path.join(folder, filename)
+            with open(dest, "w", encoding="utf-8") as f:
+                f.write(self.last_receipt)
+            self.alert("Struk tersimpan di:\n" + dest)
+        except Exception as e:
+            self.alert("Gagal menyimpan struk:\n" + str(e))
 
     def show_report(self):
         body = self.page("LAPORAN")
