@@ -1,5 +1,4 @@
-cd ~/KasirOfflinePro
-nano buildozer.spec[app]
+[app]
 title = Kasir Offline Pro
 package.name = kasirofflinepro
 package.domain = id.offlinekasir
